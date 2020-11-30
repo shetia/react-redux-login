@@ -1,18 +1,29 @@
 const mysql = require('mysql')
-var client = mysql.createConnection({
+
+const client = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'root',
   database: 'user'
 })
-client.connect()
-function sqlFn(sql, arr, callback){
-  client.query(sql, arr, function (error, result){
-    if (error){
-      console.log(new Error(error))
-      return
-    }
-    callback(result)
+client.connect((e) => {
+  if(e) {
+    console.log('mysql连接失败:' + e)
+    return
+  }
+  console.log('mysql连接成功')
+})
+
+const mysqlFn = (sql, arr) => {
+  return new Promise((resolve, reject) => {
+    client.query(sql, arr, (err, res) => {
+      if (err) {
+        reject(err)
+        return
+      }
+      resolve(res)
+    })
   })
 }
-module.exports = sqlFn
+
+module.exports = mysqlFn

@@ -1,15 +1,17 @@
-import { SET_CURRENT_USER } from '../constants'
+
+import {SET_CUR_USER} from '../constants'
 import { isEmpty } from 'lodash'
+
 const initState = {
-  isAuthenticated: false,
-  user:{}
+  isAuth: false,
+  user: {}
 }
-const auth = (state = initState, action) => {
-  switch(action.type){
-    case SET_CURRENT_USER:
+const auth = (state = initState, actions) =>{
+  switch(actions.type){
+    case SET_CUR_USER:
       return {
-        isAuthenticated: !isEmpty(action.user),
-        user: action.user
+        isAuth: !isEmpty(actions.user),
+        user: actions.user
       }
     default:
       return state

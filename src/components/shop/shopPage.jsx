@@ -1,9 +1,9 @@
-import React from 'react'
+import React from 'react';
 export default class ShopPage extends React.Component{
-  render () {
+  render(){
     return (
-      <div className="jumbotron">
-        <h2>Hi Shop</h2>
+      <div>
+       <h1>Hi, Welcome Shop!</h1>
       </div>
     )
   }

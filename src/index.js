@@ -1,35 +1,28 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-
-import logger from 'redux-logger'
-import thunk from 'redux-thunk'
-
-import { composeWithDevTools } from 'redux-devtools-extension'
-import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
-import rootReducer from './reducers';
-
-import routes from './routes'
-import { BrowserRouter as Router } from 'react-router-dom'
-import Navigation from './components/Navigation'
-import FlashMessageList from './components/flash/FlashMessageList'
-import setAuthorizationToken from './utils/setAuthorizationToken'
-import { setCurrentUser } from './actions/login'
+import store from './store'
+import { BrowserRouter } from 'react-router-dom'
+import Routes from './routes'
+import Navgator from './components/navgator'
+import Message from './components/message/messageList'
 import jwtDecode from 'jwt-decode'
-const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(logger, thunk)))
-if (localStorage.jwtToken) {
-  setAuthorizationToken(localStorage.jwtToken)
-  store.dispatch(setCurrentUser(jwtDecode(localStorage.jwtToken)))
+import setToken from './utils/setToken'
+import { setCurUser } from './actions/loginActions'
+import './index.css'
+let token = sessionStorage.getItem('token')
+
+if (token) {
+  setToken(token)
+  store.dispatch(setCurUser(jwtDecode(token)))
 }
 ReactDOM.render(
-  <Provider store={ store }>
-      <Router routes={ routes }>
-        <Navigation></Navigation>
-        <FlashMessageList></FlashMessageList>
-        { routes }
-      </Router>
-  </Provider>
-  ,
+  <Provider store={store}>
+    <BrowserRouter routes={ Routes }>
+      <Navgator/>
+      <Message/>
+      <Routes />
+    </BrowserRouter>
+  </Provider>,
   document.getElementById('root')
 );
-

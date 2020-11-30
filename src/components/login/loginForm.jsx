@@ -1,82 +1,63 @@
-import React from 'react'
-import classname from 'classname'
-import {login} from '../../actions/login'
+import React from 'react';
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
-import validateInput from '../../utils/validations/login'
+import { login } from '../../actions/loginActions'
+import { addMessage } from '../../actions/messageActions'
 class LoginForm extends React.Component{
-  constructor () {
+  constructor(){
     super()
     this.state = {
       username: '',
       password: '',
-      isLoading: false,
-      invalid: false,
-      errors: {}
+      error: {},
+      invalid: false
     }
-  }
-  onChange = (e) => {
-    this.setState({
-      [e.target.name]: e.target.value
-    })
-  }
-  isValid = (e) => {
-    const {errors, isValid} = validateInput(this.state)
-    if (!isValid) {
-      this.setState({errors})
-    }
-    return isValid
   }
   onSubmit = (e) => {
     e.preventDefault()
-    if (this.isValid()){
-      this.setState({errors: {}, isLoading: true})
-      console.log(this.props);
-      this.props.login(this.state).then(res=>{
-        console.log(res);
+    console.log(this.props)
+    this.setState({invalid: true})
+    this.props.login(this.state).then(res => {
+      if (res.data.code === 0){
         this.props.history.push('/')
-      }, error => {
-        this.setState({errors: error.response.data.errors, isLoading: false})
-      })
-    }
+        this.props.addMessage({type: 'success', text: '登录成功'})
+      } else{
+        let error = res.data.msg.error
+        this.setState({
+          error,
+          invalid: false
+        })
+      }
+    })
   }
-  render () {
-    let {isLoading, invalid, errors} = this.state
+  onChange = (e) => {
+    let key = e.target.name
+    let val = e.target.value
+    this.setState({
+      [key]: val
+    })
+  }
+  render(){
+    let {invalid, error} = this.state
     return (
-      <div>
-        <form onSubmit={ this.onSubmit }>
-
-          <h2>Login</h2>
-          {errors.form && <div className="alert alert-danger">{errors.form}</div>}
-          <div className="form-group">
-            <label className="control-label">Username</label>
-            <input
-              type="text"
-              name="username"
-              value={ this.state.username }
-              onChange={ this.onChange }
-              className={classname('form-control', {'is-invalid': errors.username} )}
-            />
-            {errors.username && <span className="form-text text-muted">{errors.username}</span>}
-          </div>
-          <div className="form-group">
-            <label className="control-label">password</label>
-            <input
-              type="password"
-              name="password"
-              value={ this.state.password }
-              onChange={ this.onChange }
-              className={classname('form-control', {'is-invalid': errors.password} )}
-            />
-            {errors.password && <span className="form-text text-muted">{errors.password}</span>}
-          </div>
-          <div className="form-group">
-            <button disabled={ isLoading || invalid } className="btn btn-primary">登录</button>
-          </div>
-        </form>
-      </div>
+      <form onSubmit={ this.onSubmit }>
+        <div className="form-item">
+          <label>用户名</label>
+          <input type="text" name="username" value={this.state.username} onChange={ this.onChange } onBlur={this.onBlur}/>
+          { error.username && <div className="form-error" style={{'color': 'red'}}>{error.username}</div>}
+        </div>
+        <div className="form-item">
+          <label>密码</label>
+          <input type="password" name="password" value={this.state.password} onChange={ this.onChange }/>
+          { error.password && <div className="form-error" style={{'color': 'red'}}>{error.password}</div>}
+        </div>
+        { error.form && <div className="form-error" style={{'color': 'red'}}>{error.form}</div>}
+        <div className="form-item">
+          <button disabled={invalid}>登录</button>
+        </div>
+      </form>
     )
   }
 }
 
-export default withRouter(connect(null, {login})(LoginForm))
+export default withRouter(connect(null, { login, addMessage })(LoginForm))

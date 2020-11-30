@@ -1,13 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux'
-import { addFlashMessage } from '../actions/flashMessages'
+import { addMessage } from '../actions/messageActions'
 import { withRouter } from 'react-router-dom'
-export default function(ComposedComponent){
-  class Authenticate extends React.Component{
+export default function (ComposedComponent) {
+  class requireAuth extends React.Component{
     componentWillMount(){
       console.log(this.props)
-      if (!this.props.isAuthenticated ) {
-        this.props.addFlashMessage({
+      if (!this.props.isAuth ) {
+        this.props.addMessage({
           type: 'danger',
           text: '请先登录'
         })
@@ -15,20 +15,20 @@ export default function(ComposedComponent){
       }
     }
     componentWillUpdate(nextProps){
-      if (!nextProps.isAuthenticated){
+      if (!nextProps.isAuth){
         this.props.history.push('/login')
       }
     }
     render(){
-      return (
-        <ComposedComponent {...this.props}></ComposedComponent>
-      )
+        return (
+          <ComposedComponent {...this.props}/>
+        )
     }
   }
   const mapStateToProps = state => {
     return {
-      isAuthenticated: state.auth.isAuthenticated
+      isAuth: state.auth.isAuth
     }
   }
-  return withRouter(connect(mapStateToProps, {addFlashMessage})(Authenticate))
+  return withRouter(connect(mapStateToProps, {addMessage})(requireAuth))
 }
